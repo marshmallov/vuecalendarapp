@@ -29,7 +29,7 @@
               <p>
                 Current Date: {{ formattedDate }}
               </p>
-                 <DatePicker/>
+          
             </div>
           </div>
         </div>
@@ -47,6 +47,7 @@
                  <p>
                    
                  </p>
+                 <DatePicker/>
               </div>
             </div>
           </div>

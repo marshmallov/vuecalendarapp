@@ -12,20 +12,17 @@
           <input type="text" :value="hour" readonly />
         </div>
         <div class="form-group">
-          <label>Name</label>
-          <input v-model="name" type="text" required />
+          <input v-model="name" type="text" required placeholder="Name"/>
         </div>
         <div class="form-group">
-          <label>Surname</label>
-          <input v-model="surname" type="text" required />
+          <input v-model="surname" type="text" required placeholder="Surname"/>
         </div>
         <div class="form-group">
-          <label>Phone Number</label>
-          <input v-model="phone" type="tel" required />
+          <input v-model="phone" type="tel" required placeholder="Mobile Number" pattern="[0-9]{9}"
+          title="Please enter a valid 9-digit mobile number"/>
         </div>
         <div class="form-group">
-          <label>Email</label>
-          <input v-model="email" type="email" required />
+          <input v-model="email" type="email" required placeholder="Email"/>
         </div>
         <div class="form-actions">
           <button type="submit" class="submit-btn">Submit</button>
@@ -39,7 +36,9 @@
 </template>
 
 <script>
+import { doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
 export default {
+    
   props: {
     hour: {
       type: String,
@@ -58,16 +57,42 @@ export default {
       email: "",
     };
   },
+  inject: ["db"],
   methods: {
-    submitReservation() {
-      const formData = {
-        hour: this.hour,
-        name: this.name,
-        surname: this.surname,
-        phone: this.phone,
-        email: this.email,
-      };
-      this.$emit("submit", formData);
+    async submitReservation() {
+      try {
+        const reservationData = {
+          name: this.name,
+          surname: this.surname,
+          phone: this.phone,
+          email: this.email,
+        };
+
+        // Reference to the document in the `reservations` collection
+        const docRef = doc(this.db, "Reservations", this.date);
+
+        // Check if the document exists
+        const docSnapshot = await getDoc(docRef);
+        if (docSnapshot.exists()) {
+          // If the document exists, update the array for the specific hour
+          await updateDoc(docRef, {
+            [this.hour]: arrayUnion(reservationData),
+          });
+        } else {
+          // If the document does not exist, create it with the hour and reservation array
+          await setDoc(docRef, {
+            [this.hour]: [reservationData],
+          });
+        }
+
+        // Emit success event and close popup
+        this.$emit("submit", { date: this.date, hour: this.hour, ...reservationData });
+        this.$emit("close");
+        alert("Reservation successfully submitted!");
+      } catch (error) {
+        console.error("Error submitting reservation:", error);
+        alert("Failed to submit the reservation. Please try again.");
+      }
     },
   },
 };

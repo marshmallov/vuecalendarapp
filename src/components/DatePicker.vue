@@ -15,11 +15,18 @@
     <p>Selected Date: {{ selectedDate }}</p>
 
     <div class="listview">
-      <div v-for="hour in availableHours" :key="hour" class="listview-item">
+      <div v-for="hour in allHours" :key="hour" class="listview-item">
         <span class="hour-text">{{ hour }}</span>
-        <button @click="openReservationPopup(hour)" class="reserve-btn">
-          Reserve
-        </button>
+        <!-- Show "Reserved" label if hour is in reservedHours -->
+        <template v-if="reservedHours.includes(hour)">
+          <span class="reserved-label">Reserved</span>
+        </template>
+        <!-- Show "Reserve" button if hour is not reserved -->
+        <template v-else>
+          <button @click="openReservationPopup(hour)" class="reserve-btn">
+            Reserve
+          </button>
+        </template>
       </div>
     </div>
     <!-- Reservation Popup -->
@@ -45,7 +52,9 @@ export default {
       currentDate: new Date().toISOString().split("T")[0],
       // Initialize selectedDate to today's date as the default value
       selectedDate: new Date().toISOString().split("T")[0],
-      availableHours: [],
+      availableHours:[],
+      allHours: [],
+      reservedHours: [],
       isPopupOpen: false,
       selectedHour: null,
     };
@@ -70,11 +79,27 @@ export default {
           // this.availableHours = Object.keys(docSnapshot.data());
           const data = docSnapshot.data();
           const rawHours = Array.from(data.hours || []);
-          this.availableHours = rawHours;
-          console.log(this.availableHours);
+          this.allHours = rawHours;
+          console.log(this.allHours);
         } else {
           console.log("No document found for 30min.");
+          this.allHours = [];
         }
+        // Step 2: Check the `reservations` collection for reserved hours
+        const reservationsDocRef = doc(this.db, "Reservations", this.selectedDate);
+        const reservationsSnapshot = await getDoc(reservationsDocRef);
+
+        if (reservationsSnapshot.exists()) {
+          const reservationData = reservationsSnapshot.data();
+          this.reservedHours = Object.keys(reservationData); // Reserved hours as keys
+        } else {
+          this.reservedHours = []; // No reservations for the selected date
+        }
+
+        // Step 3: Filter out reserved hours from availableHours
+        this.availableHours = this.allHours.filter(
+          (hour) => !this.reservedHours.includes(hour)
+        );
       } catch (error) {
         console.error("Error fetching hours:", error);
       }

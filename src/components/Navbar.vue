@@ -24,7 +24,7 @@
               href="#where-section"
               @click.prevent="scrollToSection('services-section')"
               class="text-white"
-              >Where?</a
+              >Reservation</a
             >
           </li>
           <li>
@@ -62,9 +62,16 @@ export default {
       const yOffset = -0; // Adjust this value to match the height of your navbar
       const y =
         element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      this.showNavbar = true;
+      this.scrollingToSection = true;
       window.scrollTo({ top: y, behavior: "smooth" });
+      setTimeout(() => {
+        this.lastScrollPosition = y; // Update the last scroll position
+        this.scrollingToSection = false;
+      }, 1000);
     },
     onScroll() {
+      if (this.scrollingToSection) return; // Ignore scrolling triggered by navigation
       // Get the current scroll position
       const currentScrollPosition =
         window.pageYOffset || document.documentElement.scrollTop;
