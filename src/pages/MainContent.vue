@@ -55,6 +55,7 @@
       </section>
       
       <section id="contact-section">
+        
         <div
           class="parallax-item"
           style="background-image: url('/src/assets/images/IMG_4.jpg')"
@@ -63,16 +64,19 @@
             <div class="content-card">
               <p>
                 <!-- Your contact section content -->
-                
               </p>
+             
             </div>
+            <Contact/>
           </div>
         </div>
+       
       </section>
     </div>
   </template>
   
   <script>
+import Contact from '../components/Contact.vue';
 import DatePicker from '../components/DatePicker.vue';
 import Navbar from '../components/Navbar.vue';
 import TimePicker from '../components/TimePicker.vue';
@@ -80,7 +84,7 @@ import TimePicker from '../components/TimePicker.vue';
  
   export default {
     name: "MainContent",
-    components: {Navbar,TimePicker, DatePicker},
+    components: {Navbar,TimePicker, DatePicker, Contact},
     data() {
       return {
         currentDate: new Date()
@@ -133,7 +137,6 @@ import TimePicker from '../components/TimePicker.vue';
   .content-card {
     background-color: rgba(255, 255, 255, 0); /* Transparency for the content card */
     padding: 2rem;
-    border-radius: 8px;
     max-width: 600px;
     text-align: center;
   }

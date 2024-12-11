@@ -166,7 +166,7 @@ export default {
 /* Styling for the list view container */
 .listview {
   border: 1px solid #ccc;
-  border-radius: 5px;
+
   padding: 10px;
   background-color: #f9f9f9;
   max-height: 300px;
